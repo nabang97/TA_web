@@ -1,28 +1,29 @@
 <?php
 require '../mobile/koneksi.php';
 
-if (isset($_GET["type"])) {
+if (isset($_GET['awal']) && isset($_GET['akhir'])) {
   // code...
 
-$jenis = $_GET["type"];
-$querysearch = " 	SELECT worship_building_id, name_of_worship_building ,ST_X(ST_Centroid(geom)) AS longitude, ST_Y(ST_CENTROID(geom)) As latitude
-					FROM worship_building
-                    WHERE type_of_worship = '$jenis' order by name_of_worship_building
-				";
-
-$hasil = pg_query($querysearch);
-while ($row = pg_fetch_array($hasil)) {
-    $id = $row['worship_building_id'];
-    $name = $row['name_of_worship_building'];
-    $longitude = $row['longitude'];
-    $latitude = $row['latitude'];
-    $dataarray[] = array('id' => $id, 'name' => $name, 'longitude' => $longitude, 'latitude' => $latitude);
-}
-// echo json_encode($dataarray);
+  $awal = str_replace(".", "", $_GET['awal']);
+  	$akhir = str_replace(".", "", $_GET['akhir']);
+  	$querysearch = " 	SELECT msme_building_id, name_of_msme_building ,ST_X(ST_Centroid(geom)) AS longitude, ST_Y(ST_CENTROID(geom)) AS latitude
+  						FROM msme_building
+  	                    WHERE monthly_income BETWEEN '$awal' AND '$akhir' ORDER BY name_of_msme_building
+  					";
+  	$hasil = pg_query($querysearch);
+  	while ($row = pg_fetch_array($hasil)) {
+  	    $id = $row['msme_building_id'];
+  	    $name = $row['name_of_msme_building'];
+  	    $longitude = $row['longitude'];
+  	    $latitude = $row['latitude'];
+  	    $dataarray[] = array('id' => $id, 'name' => $name, 'longitude' => $longitude, 'latitude' => $latitude);
+  	}
+ //echo json_encode($dataarray);
 }
 ?>
 
-<!DOCTYPE html>
+
+    <!DOCTYPE html>
 <html>
   <head>
     <title>Simple Map</title>
@@ -52,7 +53,9 @@ while ($row = pg_fetch_array($hasil)) {
           zoom: 13
         });
         // map.data.LoadGeojson('https://gis-kotogadang.herokuapp.com/dataumkm.php');
-
+        var layernya = new google.maps.Data();
+                           layernya.loadGeoJson('https://gis-kotogadang.herokuapp.com/batasnagari.php');
+                           layernya.setMap(map);
         var a = <?php echo json_encode($dataarray); ?>;
         console.log(a);
         console.log(a.length);
@@ -61,18 +64,16 @@ while ($row = pg_fetch_array($hasil)) {
         //                    layernya.loadGeoJson(a);
         //                    layernya.setMap(map);
         console.log(a[0]['latitude']);
-        for (i=0; i < panjang; i++) {
-          var myLatLng = {lat: parseFloat(a[i]['latitude']), lng: parseFloat(a[i]['longitude'])};
-          var marker = new google.maps.Marker({
-         position: myLatLng,
-         map: map,
-         title: a[i]['name']
-       });
+          for (i=0; i < panjang; i++) {
+            var myLatLng = {lat: parseFloat(a[i]['latitude']), lng: parseFloat(a[i]['longitude'])};
+            var marker = new google.maps.Marker({
+               position: myLatLng,
+               map: map,
+               title: a[i]['name']
+              });
 
-       }
-       var layernya = new google.maps.Data();
-                          layernya.loadGeoJson('https://gis-kotogadang.herokuapp.com/batasnagari.php');
-                          layernya.setMap(map);
+         }
+
         }
 
     </script>

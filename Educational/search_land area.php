@@ -1,33 +1,32 @@
 <?php
 require '../mobile/koneksi.php';
 
-if (isset($_GET["jorong"])) {
+if (isset($_GET['awal']) && isset($_GET['akhir']) ) {
   // code...
-
-  $j_id = $_GET["jorong"];
-
-  $querysearch = " 	SELECT
-  					M.msme_building_id,
-  					M.name_of_msme_building,
-  					M.geom,
-  					ST_X(ST_CENTROID(M.geom)) as longitude,
-  					ST_Y(ST_CENTROID(M.geom)) as latitude
-  					FROM msme_building AS M, jorong AS J
-  					WHERE ST_CONTAINS(J.geom, M.geom) and J.jorong_id='$j_id'";
-
+  $awal = $_GET["awal"];
+  $akhir = $_GET["akhir"];
+  $querysearch = " 	SELECT educational_building_id, name_of_educational_building ,ST_X(ST_Centroid(geom)) AS longitude, ST_Y(ST_CENTROID(geom)) As latitude
+  					FROM educational_building WHERE land_area BETWEEN '$awal' AND '$akhir' ORDER BY name_of_educational_building
+  				";
   $hasil = pg_query($querysearch);
   while ($row = pg_fetch_array($hasil)) {
-      $id = $row['msme_building_id'];
-      $name = $row['name_of_msme_building'];
+      $id = $row['educational_building_id'];
+      $name = $row['name_of_educational_building'];
       $longitude = $row['longitude'];
       $latitude = $row['latitude'];
       $dataarray[] = array('id' => $id, 'name' => $name, 'longitude' => $longitude, 'latitude' => $latitude);
   }
- //echo json_encode($dataarray);
+//  echo json_encode ($dataarray);
 }
 ?>
 
-
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <body>
     <!DOCTYPE html>
 <html>
   <head>
@@ -84,5 +83,7 @@ if (isset($_GET["jorong"])) {
     </script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBNnzxae2AewMUN0Tt_fC3gN38goeLVdVE&callback=initMap"
     async defer></script>
+  </body>
+</html>
   </body>
 </html>
