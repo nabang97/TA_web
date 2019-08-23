@@ -1,5 +1,5 @@
 //Set up Server URL
-var server = 'https://gisbuilding.com/';
+var server = 'https://gisbuilding.herokuapp.com/';
 var njorong = 0; var digitjorong = [];
 
 function callRoute(start, end, color, endmarker) {
