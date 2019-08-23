@@ -1,5 +1,5 @@
 <?php
-require '../mobile/koneksi.php';
+require 'mobile/koneksi.php';
 if (isset($_GET['lat']) && $_GET['lng'] ) {
   if ((isset($_GET['lat'])=="") && (isset($_GET['lng'])=="")){
     $lat = -0.3209284;
@@ -12,28 +12,22 @@ if (isset($_GET['lat']) && $_GET['lng'] ) {
   $lat = -0.3209284;
   $lng = 100.3484996;
 }
-if (isset($_GET['awal']) && isset($_GET['akhir']) ) {
-  $awal = $_GET["awal"];
-  $akhir = $_GET["akhir"];
-  $querysearch = " 	SELECT worship_building_id, name_of_worship_building ,ST_X(ST_Centroid(geom)) AS longitude, ST_Y(ST_CENTROID(geom)) As latitude
-  					FROM worship_building WHERE land_area BETWEEN '$awal' AND '$akhir' ORDER BY name_of_worship_building
-  				";
-  $hasil = pg_query($querysearch);
-  while ($row = pg_fetch_array($hasil)) {
-      $id = $row['worship_building_id'];
-      $name = $row['name_of_worship_building'];
-      $longitude = $row['longitude'];
-      $latitude = $row['latitude'];
-      $dataarray[] = array('id' => $id, 'name' => $name, 'longitude' => $longitude, 'latitude' => $latitude);
-  }
+if (isset($_GET["model"])) {
+  require 'model/house_model.php';
+  require 'model/msme_model.php';
+  require 'model/office_model.php';
+  require 'model/educational_model.php';
+  require 'model/health_model.php';
+  require 'model/worship_model.php';
   if (empty($dataarray)) {
-    $datajson = 'null';
-  }
-  else {
-      $datajson = json_encode ($dataarray);
-  }
+	 $datajson = 'null';
+	}
+	else {
+		 $datajson = json_encode ($dataarray);
+	}
 }
 ?>
+
 
     <!DOCTYPE html>
 <html>
@@ -41,8 +35,8 @@ if (isset($_GET['awal']) && isset($_GET['akhir']) ) {
     <title>Simple Map</title>
     <meta name="viewport" content="initial-scale=1.0">
     <meta charset="utf-8">
-    <script src="../js/jquery-3.4.0.min.js" charset="utf-8"></script>
-    <script src="../js/script.js"></script>
+    <script src="js/jquery-3.4.0.min.js" charset="utf-8"></script>
+    <script src="js/script.js"></script>
     <style>
       /* Always set the map height explicitly to define the size of the div
        * element that contains the map. */
@@ -60,6 +54,7 @@ if (isset($_GET['awal']) && isset($_GET['akhir']) ) {
   <body>
     <div id="map"></div>
     <script>
+    console.log(<?php echo json_encode($dataarray); ?>);
     var map;
     var latposition = <?php echo $lat ?>;
     var lngposition = <?php echo $lng ?>;
@@ -68,6 +63,7 @@ if (isset($_GET['awal']) && isset($_GET['akhir']) ) {
         center: {lat: -0.3209284, lng: 100.3484996},
         zoom: 13
       });
+
       // map.data.LoadGeojson('https://gis-kotogadang.herokuapp.com/dataumkm.php');
       // var layernya = new google.maps.Data();
       //                    layernya.loadGeoJson('https://gis-kotogadang.herokuapp.com/batasnagari.php');
@@ -83,48 +79,48 @@ if (isset($_GET['awal']) && isset($_GET['akhir']) ) {
       LoadGeoBangunan(worshiplayer,'green',server+'mobile/datat4ibadah.php');
       LoadGeoBangunan(batasnagari,'black',server+'mobile/batasnagari.php');
 
-
-      var a = <?php echo $datajson; ?>;
-      if (a == null) {
-        console.log("DATA NGGAK ADA");
-      }
-      else {
-        console.log(a);
-        panjang=a.length;
-        // var layernya = new google.maps.Data();
-        //                    layernya.loadGeoJson(a);
-        //                    layernya.setMap(map);
-        if (panjang > 0) {
-          console.log(a[0]['latitude']);
-            for (i=0; i < panjang; i++) {
-              var myLatLng = {lat: parseFloat(a[i]['latitude']), lng: parseFloat(a[i]['longitude'])};
-              var marker = new google.maps.Marker({
-                 position: myLatLng,
-                 map: map,
-                 title: a[i]['name'],
-                 icon:{ url: ""+server+"/img/musajik.png" }
-                });
-
-           }
+        var a = <?php echo $datajson; ?>;
+        if (a == null) {
+          console.log("DATA NGGAK ADA");
         }
-      }
+        else {
+          console.log(a);
+          panjang=a.length;
+          // var layernya = new google.maps.Data();
+          //                    layernya.loadGeoJson(a);
+          //                    layernya.setMap(map);
+          if (panjang > 0) {
+            console.log(a[0]['latitude']);
+              for (i=0; i < panjang; i++) {
+                var myLatLng = {lat: parseFloat(a[i]['latitude']), lng: parseFloat(a[i]['longitude'])};
+                var marker = new google.maps.Marker({
+                   position: myLatLng,
+                   map: map,
+                   title: a[i]['name'],
+                   icon:{ url: ""+server+a[i]['marker'] }
+                  });
 
-      var markerposition = new google.maps.Marker({
-         position: {lat: latposition, lng: lngposition},
-         map: map,
-         title: "Your Position",
-         clickable : false
-      });
-      markerposition.info = new google.maps.InfoWindow({
-       content: '<center><a>Your Position</a></center>',
-       pixelOffset: new google.maps.Size(0, -1)
-         });
-     markerposition.info.open(map, markerposition)
+             }
+          }
         }
+
+        var markerposition = new google.maps.Marker({
+           position: {lat: latposition, lng: lngposition},
+           map: map,
+           title: "Your Position",
+           clickable : false
+        });
+        markerposition.info = new google.maps.InfoWindow({
+         content: '<center><a>Your Position</a></center>',
+         pixelOffset: new google.maps.Size(0, -1)
+           });
+       markerposition.info.open(map, markerposition)
+        }
+
+
 
     </script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBNnzxae2AewMUN0Tt_fC3gN38goeLVdVE&callback=initMap"
     async defer></script>
-
   </body>
 </html>

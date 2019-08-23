@@ -35,7 +35,7 @@
 					var latlng = new google.maps.LatLng(lat, lng);
 
 					var myOptions = {
-			      zoom:10, center: latlng, mapTypeId: google.maps.MapTypeId.ROADMAP };
+			      zoom:13, center: latlng, mapTypeId: google.maps.MapTypeId.ROADMAP };
 			      map = new google.maps.Map(document.getElementById('map'), myOptions);
 
 			    var marker = new google.maps.Marker({ position: latlng,map: map,title: '', clickable:false, icon:''});
@@ -55,6 +55,17 @@
 			      fillColor: "blue",
 			      fillOpacity: 0.35
 			    });
+          var batasnagari, houselayer, msmelayer, educationlayer, officelayer,worshiplayer;
+
+          setLayerJorong();
+          //LoadGeoJorong(jorong,server+'mobile/jorong.php');
+          LoadGeoBangunan(houselayer,'red',server+'mobile/datarumah.php');
+          LoadGeoBangunan(msmelayer,'purple',server+'mobile/dataumkm.php');
+          LoadGeoBangunan(educationlayer,'blue',server+'mobile/datapendidikan.php');
+          LoadGeoBangunan(officelayer,'brown',server+'mobile/datakantor.php');
+          LoadGeoBangunan(worshiplayer,'green',server+'mobile/datat4ibadah.php');
+          LoadGeoBangunan(batasnagari,'black',server+'mobile/batasnagari.php');
+
 
           var url = server+'/Health/search_radius.php?lat='+lat+'&lng='+lng+'&rad='+rad+'';
           console.log(url);

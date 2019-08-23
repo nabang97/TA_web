@@ -1,5 +1,6 @@
 //Set up Server URL
-var server = 'https://d809bd8c.ngrok.io/gisbuilding_mobile/';
+var server = 'https://gisbuilding.com/';
+var njorong = 0; var digitjorong = [];
 
 function callRoute(start, end, color, endmarker) {
   var rendererOptions = {
@@ -43,7 +44,9 @@ function callRoute(start, end, color, endmarker) {
       }
     );
 
-    directionsDisplay.setMap(map);
+      directionsDisplay.setMap(map);
+      directionsDisplay.setPanel(document.getElementById('directionsPanel'));
+
     //directionsDisplay.setOptions( { suppressMarkers: true } );
     map.setZoom(16);
 }
@@ -57,14 +60,110 @@ function ShowLegend(str){
 }
 
 function LoadGeoBangunan(layername,color,url){
+
 layername = new google.maps.Data();
             layername.setStyle({
           fillColor: color,
           strokeColor: color,
           strokeWeight: 1
         });
-           layername.loadGeoJson(url);
+           layername.loadGeoJson(url,null,function(features){
+          //    console.log("heii");
+          //    features.forEach(function(feature) {
+          //     console.log('properties are: ');
+          //     feature.forEachProperty(function(value,property) {
+          //         console.log(property,':',value);
+          //     });
+          // });
+           });
            layername.setMap(map);
+}
+function setLayerJorong(){
+  var url = server+'mobile/jorong.php';
+  console.log(url);
+  $.ajax({url: url, data: "", dataType: 'json', success: function(arrays){
+    for (i = 0; i < arrays.features.length; i++) {
+        var data = arrays.features[i];
+        var arrayGeometries = data.geometry.coordinates;
+        var jenis = data.jenis;
+        var p2 = data.properties.nama;
+        var p3 = 'Jorong: ' + p2;
+
+        var idTitik = 0;
+        var hitungTitik = [];
+        while (idTitik < arrayGeometries[0][0].length) {
+          var aa = arrayGeometries[0][0][idTitik][0];
+          var bb = arrayGeometries[0][0][idTitik][1];
+          hitungTitik[idTitik] = {
+            lat: bb,
+            lng: aa
+          };
+          idTitik += 1;
+        }
+        if (data.properties.id == "KG") {
+          var warna = 'yellow';
+        } else if (data.properties.id == "GT") {
+          var warna = 'green';
+        } else if (data.properties.id == "SJ") {
+          var warna = '#478dff';
+        }
+
+        digitjorong[njorong] = new google.maps.Polygon({
+         paths: hitungTitik,
+         strokeColor: 'gray',
+         strokeOpacity: 0.6,
+         strokeWeight: 1.5,
+         fillColor: warna,
+         fillOpacity: 0.2,
+         zIndex: 0,
+         clickable: false
+       });
+       digitjorong[njorong].setMap(map);
+       njorong = njorong + 1;
+      }//end for
+
+  }});//end ajax
+}
+function LoadGeoJorong(layername,url){
+var warna;
+var njorong = 0;
+layername = new google.maps.Data();
+layername.loadGeoJson(url,null,function(features){
+ console.log("heii");
+ console.log(features.length);
+
+
+ features.forEach(function(feature){
+   console.log(feature.getGeometry().getType());
+   console.log(feature.getGeometry());
+   var tesaja = feature.getGeometry('coordinates').getArray();
+   console.log(tesaja[0].getArray());
+   var object = tesaja[0].getArray();
+   for (var variable in object) {
+     if (object.hasOwnProperty(variable)) {
+       var value = object[variable];
+       console.log(value);
+       console.log(value.getArray());
+       valuetwo =value.getArray();
+     }
+   }
+   //console.log(teslagi.[0].getArray());
+      feature.forEachProperty(function(value,property) {
+        console.log(property,':',value);
+        if (value == "KG") {
+          var warna = 'yellow';
+
+        } else if (value == "GT") {
+          var warna = 'green';
+
+        } else if (value == "SJ") {
+          var warna = '#478dff';
+        }
+      });
+  });
+});
+layername.setMap(map);
+
 }
 
 function MarkerInfo(marker, info){

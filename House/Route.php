@@ -10,6 +10,7 @@
        * element that contains the map. */
       #map {
         height: 100%;
+        width: 100%;
       }
       /* Optional: Makes the sample page fill the window. */
       html, body {
@@ -81,7 +82,7 @@
        if (centerLokasi!= null) {
          var markerku = new google.maps.Marker({
            position: centerLokasi,
-            icon:{ url: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png" },
+            icon:{ url: ""+server+"/img/home.png" },
             map: map
           });
          callRoute(currentlocation, centerLokasi,'blue',markerku);

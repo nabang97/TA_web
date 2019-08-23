@@ -17,8 +17,11 @@
         padding: 0;
       }
     </style>
+
 		<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBNnzxae2AewMUN0Tt_fC3gN38goeLVdVE">
 		</script>
+    <script src="../js/script.js"></script>
+    <script src="../js/jquery-3.4.0.min.js" charset="utf-8"></script>
     <?php
       $lat = $_GET["lat"];    // Isi yang dicari
       $lng = $_GET["lng"];
@@ -35,7 +38,7 @@
 					var latlng = new google.maps.LatLng(lat, lng);
 
 					var myOptions = {
-			      zoom:10, center: latlng, mapTypeId: google.maps.MapTypeId.ROADMAP };
+			      zoom:13, center: latlng, mapTypeId: google.maps.MapTypeId.ROADMAP };
 			      map = new google.maps.Map(document.getElementById('map'), myOptions);
 
 			    var marker = new google.maps.Marker({ position: latlng,map: map,title: '', clickable:false, icon:''});
@@ -55,6 +58,16 @@
 			      fillColor: "blue",
 			      fillOpacity: 0.35
 			    });
+          var batasnagari, houselayer, msmelayer, educationlayer, officelayer,worshiplayer;
+
+          setLayerJorong();
+          //LoadGeoJorong(jorong,server+'mobile/jorong.php');
+          LoadGeoBangunan(houselayer,'red',server+'mobile/datarumah.php');
+          LoadGeoBangunan(msmelayer,'purple',server+'mobile/dataumkm.php');
+          LoadGeoBangunan(educationlayer,'blue',server+'mobile/datapendidikan.php');
+          LoadGeoBangunan(officelayer,'brown',server+'mobile/datakantor.php');
+          LoadGeoBangunan(worshiplayer,'green',server+'mobile/datat4ibadah.php');
+          LoadGeoBangunan(batasnagari,'black',server+'mobile/batasnagari.php');
 
           var url = server+'/Educational/search_radius.php?lat='+lat+'&lng='+lng+'&rad='+rad+'';
           console.log(url);
@@ -81,8 +94,7 @@
   <body onload="init()">
     <div id="map"></div>
 
-    <script src="../js/script.js"></script>
-		<script src="../js/jquery-3.4.0.min.js" charset="utf-8"></script>
+
 		<!-- <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBNnzxae2AewMUN0Tt_fC3gN38goeLVdVE&callback=initMap"
 		async defer></script> -->
   </body>

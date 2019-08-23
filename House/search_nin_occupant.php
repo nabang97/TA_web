@@ -12,35 +12,37 @@ if (isset($_GET['lat']) && $_GET['lng'] ) {
   $lat = -0.3209284;
   $lng = 100.3484996;
 }
-if (isset($_GET['awal']) && isset($_GET['akhir']) ) {
-  $awal = $_GET["awal"];
-  $akhir = $_GET["akhir"];
-  $querysearch = " 	SELECT worship_building_id, name_of_worship_building ,ST_X(ST_Centroid(geom)) AS longitude, ST_Y(ST_CENTROID(geom)) As latitude
-  					FROM worship_building WHERE land_area BETWEEN '$awal' AND '$akhir' ORDER BY name_of_worship_building
-  				";
-  $hasil = pg_query($querysearch);
-  while ($row = pg_fetch_array($hasil)) {
-      $id = $row['worship_building_id'];
-      $name = $row['name_of_worship_building'];
-      $longitude = $row['longitude'];
-      $latitude = $row['latitude'];
-      $dataarray[] = array('id' => $id, 'name' => $name, 'longitude' => $longitude, 'latitude' => $latitude);
-  }
-  if (empty($dataarray)) {
-    $datajson = 'null';
-  }
-  else {
-      $datajson = json_encode ($dataarray);
-  }
+if (isset($_GET['nin_occupant'])) {
+  $nik = strtoupper($_GET['nin_occupant']);
+  	$querysearch = " 	SELECT H.house_building_id, C.national_identity_number, ST_X(ST_Centroid(H.geom)) AS longitude, ST_Y(ST_CENTROID(H.					geom)) AS latitude
+						FROM house_building AS H
+						JOIN family_card AS F ON F.house_building_id=H.house_building_id
+						JOIN citizen AS C ON F.family_card_number=C.family_card_number
+						WHERE upper(C.national_identity_number) LIKE'%$nik%' ORDER BY house_building_id
+  					";
+  	$hasil = pg_query($querysearch);
+  	while ($row = pg_fetch_array($hasil)) {
+  	    $id = $row['house_building_id'];
+  	    $longitude = $row['longitude'];
+  	    $latitude = $row['latitude'];
+  	    $dataarray[] = array('id' => $id, 'longitude' => $longitude, 'latitude' => $latitude);
+  	}
+    if (empty($dataarray)) {
+      $datajson = 'null';
+    }
+    else {
+        $datajson = json_encode ($dataarray);
+    }
 }
-?>
-
-    <!DOCTYPE html>
+ ?>
+<!DOCTYPE html>
 <html>
   <head>
     <title>Simple Map</title>
     <meta name="viewport" content="initial-scale=1.0">
     <meta charset="utf-8">
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBNnzxae2AewMUN0Tt_fC3gN38goeLVdVE&callback=initMap"
+    async defer></script>
     <script src="../js/jquery-3.4.0.min.js" charset="utf-8"></script>
     <script src="../js/script.js"></script>
     <style>
@@ -102,7 +104,7 @@ if (isset($_GET['awal']) && isset($_GET['akhir']) ) {
                  position: myLatLng,
                  map: map,
                  title: a[i]['name'],
-                 icon:{ url: ""+server+"/img/musajik.png" }
+                 icon:{ url: ""+server+"/img/home.png" }
                 });
 
            }
@@ -120,11 +122,10 @@ if (isset($_GET['awal']) && isset($_GET['akhir']) ) {
        pixelOffset: new google.maps.Size(0, -1)
          });
      markerposition.info.open(map, markerposition)
+
         }
 
     </script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBNnzxae2AewMUN0Tt_fC3gN38goeLVdVE&callback=initMap"
-    async defer></script>
 
   </body>
 </html>

@@ -7,7 +7,8 @@
 		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 		<title></title>
 		<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBNnzxae2AewMUN0Tt_fC3gN38goeLVdVE"></script>
-		<script src="js/script.js" charset="utf-8"></script>
+    <script src="js/jquery-3.4.0.min.js" charset="utf-8"></script>
+    <script src="js/script.js"></script>
 		<link rel="stylesheet" href="css/style.css">
 		<script type="text/javascript">
 			var geocoder = new google.maps.Geocoder();
@@ -63,13 +64,16 @@
 				});
 				MarkerInfo(marker,'Drag Me');
 
-				var batasnagari, houselayer, msmelayer, educationlayer, officelayer,worshiplayer;
-				LoadGeoBangunan(batasnagari,'black',server+'mobile/batasnagari.php');
-				LoadGeoBangunan(houselayer,'red',server+'mobile/datarumah.php');
-				LoadGeoBangunan(msmelayer,'yellow',server+'mobile/dataumkm.php');
-				LoadGeoBangunan(educationlayer,'blue',server+'mobile/datapendidikan.php');
-				LoadGeoBangunan(officelayer,'brown',server+'mobile/datakantor.php');
-				LoadGeoBangunan(worshiplayer,'green',server+'mobile/datat4ibadah.php');
+        var batasnagari, houselayer, msmelayer, educationlayer, officelayer,worshiplayer;
+
+        setLayerJorong();
+        //LoadGeoJorong(jorong,server+'mobile/jorong.php');
+        LoadGeoBangunan(houselayer,'red',server+'mobile/datarumah.php');
+        LoadGeoBangunan(msmelayer,'purple',server+'mobile/dataumkm.php');
+        LoadGeoBangunan(educationlayer,'blue',server+'mobile/datapendidikan.php');
+        LoadGeoBangunan(officelayer,'brown',server+'mobile/datakantor.php');
+        LoadGeoBangunan(worshiplayer,'green',server+'mobile/datat4ibadah.php');
+        LoadGeoBangunan(batasnagari,'black',server+'mobile/batasnagari.php');
 				// var layernya = new google.maps.Data();
         //                    layernya.loadGeoJson('https://gis-kotogadang.herokuapp.com/batasnagari.php');
         //                    layernya.setMap(map);

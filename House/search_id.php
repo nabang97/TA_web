@@ -1,19 +1,35 @@
 <?php
 require '../mobile/koneksi.php';
-
-if (isset($_GET['name'])) {
-  $id = strtoupper($_GET["id"]);
-$querysearch = " 	SELECT house_building_id, ST_X(ST_Centroid(geom)) AS longitude, ST_Y(ST_CENTROID(geom)) As latitude
-					FROM house_building WHERE upper(house_building_id) like '%$id%' ORDER BY house_building_id
-				";
-$hasil = pg_query($querysearch);
-while ($row = pg_fetch_array($hasil)) {
-    $id = $row['house_building_id'];
-    $longitude = $row['longitude'];
-    $latitude = $row['latitude'];
-    $dataarray[] = array('id' => $id, 'longitude' => $longitude, 'latitude' => $latitude);
+if (isset($_GET['lat']) && $_GET['lng'] ) {
+  if ((isset($_GET['lat'])=="") && (isset($_GET['lng'])=="")){
+    $lat = -0.3209284;
+    $lng = 100.3484996;
+  }else{
+    $lat = $_GET['lat'];
+    $lng = $_GET['lng'];
+  }
+}else{
+  $lat = -0.3209284;
+  $lng = 100.3484996;
 }
-	// echo json_encode($dataarray);
+if (isset($_GET['idhouse'])) {
+  $id = strtoupper($_GET["idhouse"]);
+	$querysearch = " SELECT house_building_id, ST_X(ST_Centroid(geom)) AS longitude, ST_Y(ST_CENTROID(geom)) AS latitude
+					FROM house_building WHERE UPPER(house_building_id) lIKE '%$id%' ORDER BY house_building_id
+					";
+	$hasil = pg_query($querysearch);
+	while ($row = pg_fetch_array($hasil)) {
+	    $id = $row['house_building_id'];
+	    $longitude = $row['longitude'];
+	    $latitude = $row['latitude'];
+	    $dataarray[] = array('id' => $id, 'longitude' => $longitude, 'latitude' => $latitude);
+	}
+  if (empty($dataarray)) {
+    $datajson = 'null';
+  }
+  else {
+      $datajson = json_encode ($dataarray);
+  }
 }
  ?>
 
@@ -30,6 +46,8 @@ while ($row = pg_fetch_array($hasil)) {
     <title>Simple Map</title>
     <meta name="viewport" content="initial-scale=1.0">
     <meta charset="utf-8">
+    <script src="../js/jquery-3.4.0.min.js" charset="utf-8"></script>
+    <script src="../js/script.js"></script>
     <style>
       /* Always set the map height explicitly to define the size of the div
        * element that contains the map. */
@@ -47,34 +65,67 @@ while ($row = pg_fetch_array($hasil)) {
   <body>
     <div id="map"></div>
     <script>
-      var map;
-      function initMap() {
-        map = new google.maps.Map(document.getElementById('map'), {
-          center: {lat: -0.3209284, lng: 100.3484996},
-          zoom: 13
-        });
-        // map.data.LoadGeojson('https://gis-kotogadang.herokuapp.com/dataumkm.php');
+    var map;
+    var latposition = <?php echo $lat ?>;
+    var lngposition = <?php echo $lng ?>;
+    function initMap() {
+      map = new google.maps.Map(document.getElementById('map'), {
+        center: {lat: -0.3209284, lng: 100.3484996},
+        zoom: 13
+      });
+      // map.data.LoadGeojson('https://gis-kotogadang.herokuapp.com/dataumkm.php');
+      // var layernya = new google.maps.Data();
+      //                    layernya.loadGeoJson('https://gis-kotogadang.herokuapp.com/batasnagari.php');
+      //                    layernya.setMap(map);
+      var batasnagari, houselayer, msmelayer, educationlayer, officelayer,worshiplayer;
 
-        var a = <?php echo json_encode($dataarray); ?>;
+      setLayerJorong();
+      //LoadGeoJorong(jorong,server+'mobile/jorong.php');
+      LoadGeoBangunan(houselayer,'red',server+'mobile/datarumah.php');
+      LoadGeoBangunan(msmelayer,'purple',server+'mobile/dataumkm.php');
+      LoadGeoBangunan(educationlayer,'blue',server+'mobile/datapendidikan.php');
+      LoadGeoBangunan(officelayer,'brown',server+'mobile/datakantor.php');
+      LoadGeoBangunan(worshiplayer,'green',server+'mobile/datat4ibadah.php');
+      LoadGeoBangunan(batasnagari,'black',server+'mobile/batasnagari.php');
+
+
+      var a = <?php echo $datajson; ?>;
+      if (a == null) {
+        console.log("DATA NGGAK ADA");
+      }
+      else {
         console.log(a);
-        console.log(a.length);
         panjang=a.length;
         // var layernya = new google.maps.Data();
         //                    layernya.loadGeoJson(a);
         //                    layernya.setMap(map);
-        console.log(a[0]['latitude']);
-        for (i=0; i < panjang; i++) {
-          var myLatLng = {lat: parseFloat(a[i]['latitude']), lng: parseFloat(a[i]['longitude'])};
-          var marker = new google.maps.Marker({
-         position: myLatLng,
-         map: map,
-         title: 'Hello World!'
-       });
+        if (panjang > 0) {
+          console.log(a[0]['latitude']);
+            for (i=0; i < panjang; i++) {
+              var myLatLng = {lat: parseFloat(a[i]['latitude']), lng: parseFloat(a[i]['longitude'])};
+              var marker = new google.maps.Marker({
+                 position: myLatLng,
+                 map: map,
+                 title: a[i]['id'],
+                 icon:{ url: ""+server+"/img/home.png" }
+                });
 
-       }
-       var layernya = new google.maps.Data();
-                          layernya.loadGeoJson('https://gis-kotogadang.herokuapp.com/batasnagari.php');
-                          layernya.setMap(map);
+           }
+        }
+      }
+
+      var markerposition = new google.maps.Marker({
+         position: {lat: latposition, lng: lngposition},
+         map: map,
+         title: "Your Position",
+         clickable : false
+      });
+      markerposition.info = new google.maps.InfoWindow({
+       content: '<center><a>Your Position</a></center>',
+       pixelOffset: new google.maps.Size(0, -1)
+         });
+     markerposition.info.open(map, markerposition)
+
         }
 
     </script>
