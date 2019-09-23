@@ -1,5 +1,6 @@
 <?php
-
+header('content-type: application/json; charset=utf8');
+header("access-control-allow-origin: *");
 include('koneksi.php');
 
 
@@ -12,7 +13,7 @@ $sql = "SELECT E.educational_building_id, E.name_of_educational_building, E.buil
 					            FROM educational_building as E
                                 LEFT JOIN type_of_construction as T ON E.type_of_construction=T.type_id
                                 LEFT JOIN level_of_education as L ON E.id_level_of_education=L.level_id
-                                WHERE E.educational_building_id='$id' 
+                                WHERE E.educational_building_id='$id'
 				            ";
 
 $geojson = array(

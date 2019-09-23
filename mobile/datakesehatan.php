@@ -1,8 +1,9 @@
 <?php
-
+header('content-type: application/json; charset=utf8');
+header("access-control-allow-origin: *");
 include('koneksi.php');
 
-$sql  = "SELECT  
+$sql  = "SELECT
 			ST_AsGeoJSON(geom)::json As geometry,
 			health_building_id,
 			name_of_health_building
